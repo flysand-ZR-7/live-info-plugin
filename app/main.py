@@ -16,7 +16,8 @@ from typing import Dict, List
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 # Load environment variables before importing app modules
 load_dotenv()
@@ -107,6 +108,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve static files (dashboard assets)
+STATIC_DIR = Path(__file__).parent.parent / "static"
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+
+@app.get("/", tags=["Dashboard"], include_in_schema=False)
+async def serve_dashboard():
+    """Serves the eye-comfortable dark mode web intelligence dashboard."""
+    index_path = STATIC_DIR / "index.html"
+    if index_path.exists():
+        return FileResponse(str(index_path))
+    return JSONResponse({"status": "ok", "service": "live-info-plugin"})
 
 
 # ==============================================================================

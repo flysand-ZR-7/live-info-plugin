@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LiveInfo — Autonomous Web Intelligence & Research Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            dark: {
+              bg: '#090d16',
+              card: '#0f172a',
+              cardHover: '#131d35',
+              border: '#1e293b',
+              accent: '#38bdf8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #090d16;
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    .glow-cyan {
+      box-shadow: 0 0 25px -5px rgba(56, 189, 248, 0.15);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.15);
+    }
+    .glass {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-50 glass border-b border-slate-800/80 px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-cyan-500/20">
+        🌐
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-extrabold text-white text-base tracking-tight">LiveInfo</span>
+          <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800/60">v1.0.0</span>
+        </div>
+        <p class="text-xs text-slate-400 font-medium">Autonomous Web Intelligence & Fact Verification Gateway</p>
+      </div>
+    </div>
+
+    <!-- Center System Status -->
+    <div class="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="text-slate-300 font-medium">Gateway: <span class="text-emerald-400 font-semibold">Active</span></span>
+      <span class="text-slate-600">|</span>
+      <span class="text-slate-400">Multi-Engine + Tor/Ahmia Ready</span>
+    </div>
+
+    <!-- Right Quick Actions -->
+    <div class="flex items-center gap-2.5">
+      <a href="/docs" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        Swagger Docs
+      </a>
+      <a href="/tools" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+        JSON Manifest
+      </a>
+      <a href="https://github.com/flysand-ZR-7/live-info-plugin" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 shadow-md shadow-cyan-600/20 transition flex items-center gap-1.5">
+        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 md:p-6 gap-6">
+
+    <!-- Sidebar Navigation Tabs -->
+    <aside class="w-full md:w-64 flex-shrink-0 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
+      <button onclick="setTab('search')" id="tab-search" class="tab-btn w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition text-left bg-cyan-950/60 border border-cyan-800/80 text-cyan-300">
+        <span class="text-base">🔍</span>
+        <div>
+          <div>Web Search</div>
+          <div class="text-[10px] text-slate-400 font-normal">Clearweb & Ahmia Tor</div>
+        </div>
+      </button>
+
+      <button onclick="setTab('news')" id="tab-news" class="tab-btn w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition text-left text-slate-400 hover:text-white hover:bg-slate-900 border border-transparent">
+        <span class="text-base">📰</span>
+        <div>
+          <div>News & Events</div>
+          <div class="text-[10px] text-slate-500 font-normal">Executive Briefings</div>
+        </div>
+      </button>
+
+      <button onclick="setTab('reader')" id="tab-reader" class="tab-btn w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition text-left text-slate-400 hover:text-white hover:bg-slate-900 border border-transparent">
+        <span class="text-base">📖</span>
+        <div>
+          <div>Website Reader</div>
+          <div class="text-[10px] text-slate-500 font-normal">Trafilatura & SSRF Safe</div>
+        </div>
+      </button>
+
+      <button onclick="setTab('crawler')" id="tab-crawler" class="tab-btn w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition text-left text-slate-400 hover:text-white hover:bg-slate-900 border border-transparent">
+        <span class="text-base">🕷️</span>
+        <div>
+          <div>Site Crawler</div>
+          <div class="text-[10px] text-slate-500 font-normal">Scrapy-Style Recursive</div>
+        </div>
+      </button>
+
+      <button onclick="setTab('research')" id="tab-research" class="tab-btn w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition text-left text-slate-400 hover:text-white hover:bg-slate-900 border border-transparent">
+        <span class="text-base">🔬</span>
+        <div>
+          <div>Research Assistant</div>
+          <div class="text-[10px] text-slate-500 font-normal">Deep Multi-Hop Synthesis</div>
+        </div>
+      </button>
+
+      <button onclick="setTab('verify')" id="tab-verify" class="tab-btn w-full px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-semibold transition text-left text-slate-400 hover:text-white hover:bg-slate-900 border border-transparent">
+        <span class="text-base">🛡️</span>
+        <div>
+          <div>Fact Verifier</div>
+          <div class="text-[10px] text-slate-500 font-normal">Two-Sided Adjudication</div>
+        </div>
+      </button>
+
+      <!-- Security Info Card -->
+      <div class="hidden md:block mt-auto p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-xs space-y-2">
+        <div class="flex items-center gap-1.5 text-cyan-400 font-bold">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+          Active SSRF Firewall
+        </div>
+        <p class="text-slate-400 text-[11px] leading-relaxed">
+          All external fetches validate DNS and reject loopbacks, private subnets (RFC 1918), and cloud metadata (169.254.169.254).
+        </p>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Content Area -->
+    <main class="flex-1 bg-slate-900/70 border border-slate-800 rounded-2xl p-6 glow-cyan flex flex-col min-w-0">
+
+      <!-- 1. SEARCH VIEW -->
+      <div id="view-search" class="view-panel space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>🔍</span> Web & Tor Intelligence Search
+            </h2>
+            <p class="text-xs text-slate-400">Query multi-engine clearweb (DuckDuckGo, Bing, Brave) or Tor .onion intelligence via Ahmia.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-slate-400">Engine:</span>
+            <select id="search-engine" class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-medium text-white focus:outline-none focus:border-cyan-500">
+              <option value="all">⚡ All Clearweb (Auto-Deduplicated)</option>
+              <option value="ahmia">🧅 Ahmia (.onion Dark Web)</option>
+              <option value="duckduckgo">🦆 DuckDuckGo Only</option>
+              <option value="bing">🔷 Bing Only</option>
+              <option value="brave">🦁 Brave Only</option>
+              <option value="wikipedia">📚 Wikipedia Only</option>
+            </select>
+          </div>
+        </div>
+
+        <form onsubmit="handleSearch(event)" class="flex gap-2">
+          <input type="text" id="search-query" required placeholder="Enter search terms, technical question, or threat intel query..." 
+                 class="flex-1 px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+          <button type="submit" id="search-btn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-sm transition shadow-md shadow-cyan-600/20">
+            Search
+          </button>
+        </form>
+
+        <div id="search-results" class="space-y-3 pt-2">
+          <div class="text-center py-12 text-slate-500 text-xs">
+            Enter a query above to see live extracted and deduplicated results.
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. NEWS VIEW -->
+      <div id="view-news" class="view-panel hidden space-y-5">
+        <div class="border-b border-slate-800 pb-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>📰</span> Live News & Executive Briefings
+          </h2>
+          <p class="text-xs text-slate-400">Retrieves real-time global news and generates a 5-bullet executive summary with citations.</p>
+        </div>
+
+        <form onsubmit="handleNews(event)" class="flex gap-2">
+          <input type="text" id="news-topic" required placeholder="e.g., Renewable energy breakthroughs, Space exploration, AI regulations..." 
+                 class="flex-1 px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+          <button type="submit" id="news-btn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-sm transition shadow-md shadow-cyan-600/20">
+            Get News
+          </button>
+        </form>
+
+        <div id="news-results" class="space-y-4 pt-2"></div>
+      </div>
+
+      <!-- 3. READER VIEW -->
+      <div id="view-reader" class="view-panel hidden space-y-5">
+        <div class="border-b border-slate-800 pb-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>📖</span> Secure Website Reader
+          </h2>
+          <p class="text-xs text-slate-400">Fetches and extracts clean body text using Trafilatura with SSRF protection and 5MB streaming cap.</p>
+        </div>
+
+        <form onsubmit="handleReader(event)" class="space-y-3">
+          <div class="flex gap-2">
+            <input type="url" id="reader-url" required placeholder="https://example.com/article" 
+                   class="flex-1 px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+            <button type="submit" id="reader-btn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-sm transition shadow-md shadow-cyan-600/20">
+              Read Page
+            </button>
+          </div>
+          <div class="flex items-center gap-4 text-xs text-slate-400">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="reader-summarize" class="rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-0">
+              <span>Generate LLM Summary</span>
+            </label>
+          </div>
+        </form>
+
+        <div id="reader-results" class="pt-2"></div>
+      </div>
+
+      <!-- 4. CRAWLER VIEW (Scrapy-Style) -->
+      <div id="view-crawler" class="view-panel hidden space-y-5">
+        <div class="border-b border-slate-800 pb-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>🕷️</span> Scrapy-Style Recursive Multi-Page Crawler
+          </h2>
+          <p class="text-xs text-slate-400">Traverses multiple documentation or website pages with depth limits, domain boundary lock, and SSRF checks.</p>
+        </div>
+
+        <form onsubmit="handleCrawler(event)" class="space-y-3">
+          <div class="flex gap-2">
+            <input type="url" id="crawler-url" required placeholder="https://docs.example.com" 
+                   class="flex-1 px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+            <button type="submit" id="crawler-btn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-sm transition shadow-md shadow-cyan-600/20">
+              Start Crawl
+            </button>
+          </div>
+          <div class="flex flex-wrap items-center gap-6 text-xs text-slate-400">
+            <div class="flex items-center gap-2">
+              <span>Max Depth:</span>
+              <select id="crawler-depth" class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-white">
+                <option value="1">1 (Root only)</option>
+                <option value="2" selected>2 (Root + Direct Children)</option>
+                <option value="3">3 (Deep Subpages)</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <span>Max Pages:</span>
+              <select id="crawler-pages" class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-white">
+                <option value="5">5 Pages</option>
+                <option value="10" selected>10 Pages</option>
+                <option value="20">20 Pages</option>
+              </select>
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="crawler-summarize" checked class="rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-0">
+              <span>Synthesize Knowledge Summary</span>
+            </label>
+          </div>
+        </form>
+
+        <div id="crawler-results" class="pt-2"></div>
+      </div>
+
+      <!-- 5. RESEARCH VIEW -->
+      <div id="view-research" class="view-panel hidden space-y-5">
+        <div class="border-b border-slate-800 pb-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>🔬</span> Deep Research Assistant
+          </h2>
+          <p class="text-xs text-slate-400">Autonomous sub-query generation, parallel search, domain diversity filtering, and structured report synthesis.</p>
+        </div>
+
+        <form onsubmit="handleResearch(event)" class="flex gap-2">
+          <input type="text" id="research-question" required placeholder="e.g., What are the commercial prospects and bottlenecks of solid-state EV batteries?" 
+                 class="flex-1 px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+          <button type="submit" id="research-btn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-sm transition shadow-md shadow-cyan-600/20">
+            Conduct Research
+          </button>
+        </form>
+
+        <div id="research-results" class="pt-2"></div>
+      </div>
+
+      <!-- 6. FACT VERIFICATION VIEW -->
+      <div id="view-verify" class="view-panel hidden space-y-5">
+        <div class="border-b border-slate-800 pb-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>🛡️</span> Two-Sided Fact Verification
+          </h2>
+          <p class="text-xs text-slate-400">Gathers supporting and contradicting evidence independently, eliminating confirmation bias and hallucinations.</p>
+        </div>
+
+        <form onsubmit="handleVerify(event)" class="flex gap-2">
+          <input type="text" id="verify-claim" required placeholder="e.g., Humans only use 10 percent of their brains" 
+                 class="flex-1 px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+          <button type="submit" id="verify-btn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-sm transition shadow-md shadow-cyan-600/20">
+            Verify Claim
+          </button>
+        </form>
+
+        <div id="verify-results" class="pt-2"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Interactive JavaScript Engine -->
+  <script>
+    function setTab(tabName) {
+      document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-cyan-950/60', 'border-cyan-800/80', 'text-cyan-300');
+        btn.classList.add('text-slate-400', 'border-transparent');
+      });
+
+      const activeView = document.getElementById(`view-${tabName}`);
+      const activeBtn = document.getElementById(`tab-${tabName}`);
+      if (activeView) activeView.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400', 'border-transparent');
+        activeBtn.classList.add('bg-cyan-950/60', 'border-cyan-800/80', 'text-cyan-300');
+      }
+    }
+
+    async function handleSearch(e) {
+      e.preventDefault();
+      const query = document.getElementById('search-query').value.trim();
+      const engine = document.getElementById('search-engine').value;
+      const resultsDiv = document.getElementById('search-results');
+      const btn = document.getElementById('search-btn');
+
+      btn.disabled = true;
+      btn.innerText = 'Searching...';
+      resultsDiv.innerHTML = '<div class="text-center py-10 text-cyan-400 text-xs animate-pulse">Querying live search engines & deduplicating results...</div>';
+
+      try {
+        const body = { query, max_results: 10 };
+        if (engine !== 'all') {
+          if (engine === 'ahmia') {
+            body.engine = 'ahmia';
+            body.category = 'darkweb';
+          } else {
+            body.engine = engine;
+          }
+        }
+
+        const res = await fetch('/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+
+        if (!data.results || data.results.length === 0) {
+          resultsDiv.innerHTML = '<div class="p-6 rounded-xl bg-slate-950 text-center text-slate-400 text-xs">No results found.</div>';
+          return;
+        }
+
+        resultsDiv.innerHTML = `
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span>Found <b>${data.total}</b> results for "<b>${data.query}</b>"</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">${data.cached ? '⚡ Cached' : '🌐 Live'}</span>
+          </div>
+          ${data.results.map(r => `
+            <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-slate-700 transition space-y-1.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${r.engine === 'ahmia' ? 'bg-purple-900/60 text-purple-300 border border-purple-700' : 'bg-cyan-950 text-cyan-400 border border-cyan-800'}">
+                  ${r.engine}
+                </span>
+                <a href="${r.url}" target="_blank" class="text-sm font-semibold text-cyan-400 hover:underline truncate">${r.title}</a>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">${r.snippet || 'No excerpt available.'}</p>
+              <div class="text-[11px] font-mono text-slate-500 truncate">${r.url}</div>
+            </div>
+          `).join('')}
+        `;
+      } catch (err) {
+        resultsDiv.innerHTML = `<div class="p-4 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs">Error: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Search';
+      }
+    }
+
+    async function handleNews(e) {
+      e.preventDefault();
+      const topic = document.getElementById('news-topic').value.trim();
+      const resultsDiv = document.getElementById('news-results');
+      const btn = document.getElementById('news-btn');
+
+      btn.disabled = true;
+      btn.innerText = 'Fetching...';
+      resultsDiv.innerHTML = '<div class="text-center py-10 text-cyan-400 text-xs animate-pulse">Aggregating live news and synthesizing briefing...</div>';
+
+      try {
+        const res = await fetch('/news', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic, max_results: 6 })
+        });
+        const data = await res.json();
+
+        resultsDiv.innerHTML = `
+          <div class="p-5 rounded-xl bg-slate-950 border border-cyan-900/50 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+              <span>⚡</span> Executive Briefing (${topic})
+            </h3>
+            <div class="text-xs text-slate-200 whitespace-pre-line leading-relaxed font-sans">${data.briefing}</div>
+          </div>
+          <div class="space-y-2">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Source Articles (${data.total})</h4>
+            ${data.articles.map((a, i) => `
+              <div class="p-3.5 rounded-lg bg-slate-950/70 border border-slate-800 text-xs flex items-center justify-between gap-4">
+                <div class="truncate">
+                  <span class="font-bold text-cyan-400">[${i+1}]</span>
+                  <a href="${a.url}" target="_blank" class="font-medium text-slate-200 hover:text-white hover:underline ml-1.5">${a.title}</a>
+                  <span class="text-slate-500 ml-2">(${a.source})</span>
+                </div>
+                <a href="${a.url}" target="_blank" class="text-xs text-cyan-400 hover:underline flex-shrink-0">Read →</a>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } catch (err) {
+        resultsDiv.innerHTML = `<div class="p-4 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs">Error: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Get News';
+      }
+    }
+
+    async function handleReader(e) {
+      e.preventDefault();
+      const url = document.getElementById('reader-url').value.trim();
+      const summarize = document.getElementById('reader-summarize').checked;
+      const resultsDiv = document.getElementById('reader-results');
+      const btn = document.getElementById('reader-btn');
+
+      btn.disabled = true;
+      btn.innerText = 'Reading...';
+      resultsDiv.innerHTML = '<div class="text-center py-10 text-cyan-400 text-xs animate-pulse">Fetching page with SSRF validation and extracting body text...</div>';
+
+      try {
+        const res = await fetch('/read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, summarize, max_chars: 8000 })
+        });
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.detail || data.error);
+
+        resultsDiv.innerHTML = `
+          <div class="space-y-4">
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+              <div>
+                <span class="font-bold text-white">${data.title || 'Untitled Page'}</span>
+                <div class="text-slate-500 font-mono text-[11px] truncate">${data.url}</div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-semibold">${data.char_count} chars</span>
+              </div>
+            </div>
+
+            ${data.summary ? `
+              <div class="p-4 rounded-xl bg-slate-950 border border-indigo-900/50 space-y-2">
+                <h4 class="text-xs font-bold uppercase text-indigo-400">Executive Summary</h4>
+                <p class="text-xs text-slate-200 leading-relaxed">${data.summary}</p>
+              </div>
+            ` : ''}
+
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              <h4 class="text-xs font-bold uppercase text-slate-400">Clean Extracted Text</h4>
+              <pre class="font-mono text-xs text-slate-300 whitespace-pre-wrap max-h-96 overflow-y-auto custom-scrollbar p-3 rounded-lg bg-slate-900/90 leading-relaxed">${data.text}</pre>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        resultsDiv.innerHTML = `<div class="p-4 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs">Error: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Read Page';
+      }
+    }
+
+    async function handleCrawler(e) {
+      e.preventDefault();
+      const url = document.getElementById('crawler-url').value.trim();
+      const max_depth = parseInt(document.getElementById('crawler-depth').value);
+      const max_pages = parseInt(document.getElementById('crawler-pages').value);
+      const summarize = document.getElementById('crawler-summarize').checked;
+      const resultsDiv = document.getElementById('crawler-results');
+      const btn = document.getElementById('crawler-btn');
+
+      btn.disabled = true;
+      btn.innerText = 'Crawling...';
+      resultsDiv.innerHTML = '<div class="text-center py-10 text-cyan-400 text-xs animate-pulse">Crawling website recursively with SSRF verification on all child links...</div>';
+
+      try {
+        const res = await fetch('/crawl', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, max_depth, max_pages, stay_on_domain: true, summarize })
+        });
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.detail || data.error);
+
+        resultsDiv.innerHTML = `
+          <div class="space-y-4">
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+              <div>
+                <span class="font-bold text-white">Crawl Complete: ${data.root_url}</span>
+                <div class="text-slate-400 text-[11px]">Depth reached: ${data.depth_reached} | Total pages: ${data.total_pages_crawled}</div>
+              </div>
+              <span class="px-2.5 py-1 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-semibold">${data.pages.length} Pages Extracted</span>
+            </div>
+
+            ${data.knowledge_summary ? `
+              <div class="p-5 rounded-xl bg-slate-950 border border-cyan-900/50 space-y-2">
+                <h4 class="text-xs font-bold uppercase text-cyan-400">Synthesized Knowledge Summary</h4>
+                <div class="text-xs text-slate-200 leading-relaxed whitespace-pre-line">${data.knowledge_summary}</div>
+              </div>
+            ` : ''}
+
+            <div class="space-y-2">
+              <h4 class="text-xs font-bold uppercase text-slate-400">Crawled Hierarchy</h4>
+              ${data.pages.map(p => `
+                <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+                  <div class="flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2 truncate">
+                      <span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 font-mono">D${p.depth}</span>
+                      <a href="${p.url}" target="_blank" class="font-semibold text-cyan-400 hover:underline truncate">${p.title || p.url}</a>
+                    </div>
+                    <span class="text-slate-500 font-mono text-[11px]">${p.word_count} words</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400 line-clamp-2">${p.text ? p.text.substring(0, 180) + '...' : 'No text content'}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        resultsDiv.innerHTML = `<div class="p-4 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs">Error: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Start Crawl';
+      }
+    }
+
+    async function handleResearch(e) {
+      e.preventDefault();
+      const question = document.getElementById('research-question').value.trim();
+      const resultsDiv = document.getElementById('research-results');
+      const btn = document.getElementById('research-btn');
+
+      btn.disabled = true;
+      btn.innerText = 'Researching...';
+      resultsDiv.innerHTML = '<div class="text-center py-10 text-cyan-400 text-xs animate-pulse">Deconstructing questions, executing parallel queries, and synthesizing cited report...</div>';
+
+      try {
+        const res = await fetch('/research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question, depth: 'standard' })
+        });
+        const data = await res.json();
+
+        resultsDiv.innerHTML = `
+          <div class="space-y-4">
+            <div class="p-5 rounded-xl bg-slate-950 border border-cyan-900/60 space-y-3">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400">Research Synthesis Report</h3>
+              <div class="text-xs text-slate-200 whitespace-pre-line leading-relaxed font-sans">${data.answer}</div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              <h4 class="text-xs font-bold uppercase text-slate-400">Sub-Queries Investigated</h4>
+              <div class="flex flex-wrap gap-1.5">
+                ${data.sub_queries.map(q => `<span class="px-2.5 py-1 rounded-md bg-slate-900 text-slate-300 text-[11px] border border-slate-800">${q}</span>`).join('')}
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <h4 class="text-xs font-bold uppercase text-slate-400">Cited Sources (${data.sources.length})</h4>
+              ${data.sources.map(s => `
+                <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs flex items-center justify-between">
+                  <div class="truncate">
+                    <span class="font-bold text-cyan-400">[${s.id}]</span>
+                    <a href="${s.url}" target="_blank" class="font-medium text-slate-200 hover:underline ml-1.5">${s.title}</a>
+                    <span class="text-slate-500 ml-2 font-mono text-[11px]">(${s.domain})</span>
+                  </div>
+                  <a href="${s.url}" target="_blank" class="text-xs text-cyan-400 hover:underline flex-shrink-0">Source →</a>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        resultsDiv.innerHTML = `<div class="p-4 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs">Error: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Conduct Research';
+      }
+    }
+
+    async function handleVerify(e) {
+      e.preventDefault();
+      const claim = document.getElementById('verify-claim').value.trim();
+      const resultsDiv = document.getElementById('verify-results');
+      const btn = document.getElementById('verify-btn');
+
+      btn.disabled = true;
+      btn.innerText = 'Verifying...';
+      resultsDiv.innerHTML = '<div class="text-center py-10 text-cyan-400 text-xs animate-pulse">Gathering two-sided evidence (confirming vs. refuting) and adjudicating...</div>';
+
+      try {
+        const res = await fetch('/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ claim })
+        });
+        const data = await res.json();
+
+        const badgeColors = {
+          'TRUE': 'bg-emerald-950 text-emerald-400 border-emerald-800',
+          'MOSTLY_TRUE': 'bg-teal-950 text-teal-400 border-teal-800',
+          'MIXED': 'bg-amber-950 text-amber-400 border-amber-800',
+          'MOSTLY_FALSE': 'bg-orange-950 text-orange-400 border-orange-800',
+          'FALSE': 'bg-red-950 text-red-400 border-red-800',
+          'UNVERIFIABLE': 'bg-slate-800 text-slate-400 border-slate-700',
+        };
+        const colorClass = badgeColors[data.verdict] || 'bg-slate-800 text-slate-300';
+
+        resultsDiv.innerHTML = `
+          <div class="space-y-4">
+            <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-slate-400">Fact Verification Adjudication</span>
+                <span class="px-3 py-1 rounded-full text-xs font-extrabold uppercase border ${colorClass}">
+                  ${data.verdict} (${Math.round(data.confidence * 100)}% Confidence)
+                </span>
+              </div>
+              <h3 class="text-sm font-bold text-white font-mono">"${data.claim}"</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">${data.explanation}</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <!-- Supporting -->
+              <div class="p-4 rounded-xl bg-slate-950 border border-emerald-900/40 space-y-2">
+                <h4 class="text-xs font-bold uppercase text-emerald-400 flex items-center gap-1.5">
+                  <span>✓</span> Supporting Evidence (${data.supporting.length})
+                </h4>
+                ${data.supporting.length ? data.supporting.map(s => `
+                  <div class="p-2.5 rounded bg-slate-900/80 border border-slate-800 text-xs space-y-1">
+                    <a href="${s.url}" target="_blank" class="font-medium text-slate-200 hover:underline truncate block">${s.title}</a>
+                    <p class="text-[11px] text-emerald-300/80 font-mono">"${s.quote_summary}"</p>
+                  </div>
+                `).join('') : '<p class="text-[11px] text-slate-500 italic">No supporting evidence discovered.</p>'}
+              </div>
+
+              <!-- Contradicting -->
+              <div class="p-4 rounded-xl bg-slate-950 border border-red-900/40 space-y-2">
+                <h4 class="text-xs font-bold uppercase text-red-400 flex items-center gap-1.5">
+                  <span>✗</span> Contradicting Evidence (${data.contradicting.length})
+                </h4>
+                ${data.contradicting.length ? data.contradicting.map(c => `
+                  <div class="p-2.5 rounded bg-slate-900/80 border border-slate-800 text-xs space-y-1">
+                    <a href="${c.url}" target="_blank" class="font-medium text-slate-200 hover:underline truncate block">${c.title}</a>
+                    <p class="text-[11px] text-red-300/80 font-mono">"${c.quote_summary}"</p>
+                  </div>
+                `).join('') : '<p class="text-[11px] text-slate-500 italic">No contradicting evidence discovered.</p>'}
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        resultsDiv.innerHTML = `<div class="p-4 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs">Error: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Verify Claim';
+      }
+    }
+  </script>
+</body>
+</html>
