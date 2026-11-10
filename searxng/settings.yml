@@ -60,3 +60,10 @@ engines:
     categories: [news]
     timeout: 3.0
     disabled: false
+
+  - name: ahmia
+    engine: ahmia
+    shortcut: ah
+    categories: [general, darkweb]
+    timeout: 5.0
+    disabled: false

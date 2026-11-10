@@ -25,8 +25,8 @@ CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "600"))
 _SEARCH_CACHE: Dict[str, Tuple[float, List[SearchResultItem]]] = {}
 
 
-def _make_cache_key(query: str, max_results: int, language: str, time_range: Optional[str], categories: Optional[str]) -> str:
-    raw = f"{query.lower().strip()}|{max_results}|{language}|{time_range or ''}|{categories or ''}"
+def _make_cache_key(query: str, max_results: int, language: str, time_range: Optional[str], categories: Optional[str], engine: Optional[str] = None) -> str:
+    raw = f"{query.lower().strip()}|{max_results}|{language}|{time_range or ''}|{categories or ''}|{engine or ''}"
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
@@ -66,6 +66,7 @@ async def _query_searxng(
     language: str,
     time_range: Optional[str],
     categories: Optional[str],
+    engine: Optional[str] = None,
 ) -> List[SearchResultItem]:
     """Queries SearXNG JSON endpoint."""
     params = {
@@ -77,6 +78,8 @@ async def _query_searxng(
         params["time_range"] = time_range
     if categories:
         params["categories"] = categories
+    if engine:
+        params["engines"] = engine
 
     endpoint = f"{SEARXNG_URL}/search"
     response = await client.get(endpoint, params=params, timeout=8.0)
@@ -156,22 +159,71 @@ async def _query_brave_fallback(
         return []
 
 
+async def _query_ahmia_direct(
+    client: httpx.AsyncClient,
+    query: str,
+    max_results: int = 8,
+) -> List[SearchResultItem]:
+    """Fallback query to Ahmia.fi dark web search engine directly."""
+    logger.info("Executing direct Ahmia dark web search for query: '%s'", query)
+    try:
+        import re
+        from html import unescape
+        
+        response = await client.get(
+            "https://ahmia.fi/search/",
+            params={"q": query},
+            timeout=10.0,
+        )
+        response.raise_for_status()
+        html = response.text
+
+        items: List[SearchResultItem] = []
+        pattern = re.compile(
+            r'<li[^>]*class=["\']result["\'][^>]*>.*?<h4><a\s+href=["\']([^"\']+)["\'][^>]*>(.*?)</a></h4>.*?<p>(.*?)</p>',
+            re.DOTALL | re.IGNORECASE,
+        )
+        for match in pattern.finditer(html):
+            raw_url, raw_title, raw_desc = match.groups()
+            clean_url = raw_url.strip()
+            if "redirect_url=" in clean_url:
+                clean_url = clean_url.split("redirect_url=")[-1]
+            title = re.sub(r"<[^>]+>", "", unescape(raw_title)).strip()
+            snippet = re.sub(r"<[^>]+>", "", unescape(raw_desc)).strip()
+            if clean_url and title:
+                items.append(
+                    SearchResultItem(
+                        title=title,
+                        url=clean_url,
+                        snippet=snippet,
+                        engine="ahmia",
+                    )
+                )
+            if len(items) >= max_results:
+                break
+        return items
+    except Exception as exc:
+        logger.warning("Direct Ahmia search failed: %s", exc)
+        return []
+
+
 async def search(
     query: str,
     max_results: int = 8,
     language: str = "en",
     time_range: Optional[SearchTimeRange | str] = None,
     categories: Optional[str] = None,
+    engine: Optional[str] = None,
     use_cache: bool = True,
 ) -> Tuple[List[SearchResultItem], bool]:
     """
     Searches the web using SearXNG with retry, URL deduplication,
-    in-memory caching, and Brave API fallback.
+    Ahmia dark-web engine support, in-memory caching, and Brave API fallback.
 
     :return: Tuple of (results_list, was_cached)
     """
     time_range_val = time_range.value if isinstance(time_range, SearchTimeRange) else time_range
-    cache_key = _make_cache_key(query, max_results, language, time_range_val, categories)
+    cache_key = _make_cache_key(query, max_results, language, time_range_val, categories, engine)
 
     now = time.monotonic()
     if use_cache and cache_key in _SEARCH_CACHE:
@@ -185,6 +237,11 @@ async def search(
     raw_items: List[SearchResultItem] = []
     headers = {"User-Agent": "LiveInfoPlugin/1.0 (Mozilla/5.0 AppleWebKit/537.36)"}
 
+    # If dark web requested or ahmia engine specified
+    is_darkweb = (categories == "darkweb" or engine == "ahmia" or ".onion" in query.lower())
+    target_categories = "darkweb" if is_darkweb and not categories else categories
+    target_engine = "ahmia" if is_darkweb and not engine else engine
+
     async with httpx.AsyncClient(headers=headers) as client:
         # Attempt 1: SearXNG
         try:
@@ -193,7 +250,8 @@ async def search(
                 query=query,
                 language=language,
                 time_range=time_range_val,
-                categories=categories,
+                categories=target_categories,
+                engine=target_engine,
             )
         except Exception as exc:
             logger.warning("SearXNG attempt 1 failed for query '%s': %s", query, exc)
@@ -208,13 +266,18 @@ async def search(
                     query=query,
                     language=language,
                     time_range=time_range_val,
-                    categories=categories,
+                    categories=target_categories,
+                    engine=target_engine,
                 )
             except Exception as exc:
                 logger.error("SearXNG attempt 2 failed for query '%s': %s", query, exc)
 
-        # Fallback to Brave API if SearXNG returned nothing
-        if not raw_items and BRAVE_API_KEY:
+        # Attempt 3: If darkweb requested and SearXNG yielded no results, query Ahmia direct
+        if not raw_items and is_darkweb:
+            raw_items = await _query_ahmia_direct(client, query, max_results)
+
+        # Fallback to Brave API if SearXNG returned nothing for clearweb queries
+        if not raw_items and not is_darkweb and BRAVE_API_KEY:
             raw_items = await _query_brave_fallback(client, query, max_results)
 
     # Deduplicate by URL up to max_results

@@ -5,14 +5,15 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
-[![Tests](https://img.shields.io/badge/Tests-26%20Passed-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/Tests-30%20Passed-brightgreen.svg)](tests/)
 
-A production-grade, secure FastAPI service that equips open-source and commercial LLMs with live internet access through 5 core capabilities:
-1. **Internet Search** (`POST /search`) — Multi-engine web search with URL deduplication, retries, and Brave fallback.
+A production-grade, secure FastAPI service that equips open-source and commercial LLMs with live internet access through 6 core capabilities:
+1. **Internet Search & Tor/Ahmia Engine** (`POST /search`) — Multi-engine web search with URL deduplication, retries, Brave fallback, and native Ahmia dark-web search integration for cybersecurity intelligence.
 2. **News & World Events** (`POST /news`) — Real-time news aggregation with an AI-generated 5-bullet executive briefing and numbered citations.
 3. **Website Reader** (`POST /read`) — Clean body text extraction using Trafilatura, 5MB streaming size capping, optional AI summary, and multi-hop SSRF protection.
-4. **Research Assistant** (`POST /research`) — Autonomous sub-query generation, parallel search, domain diversity filtering, parallel scraping, and structured report synthesis with `[n]` citations.
-5. **Fact Verification** (`POST /verify`) — Two-sided evidence gathering (supporting vs. contradicting) with evidence-bound adjudication (`TRUE`, `MOSTLY_TRUE`, `MIXED`, `MOSTLY_FALSE`, `FALSE`, `UNVERIFIABLE`).
+4. **Scrapy-Style Multi-Page Crawler** (`POST /crawl`) — Asynchronous breadth-first website crawling with depth control, domain-boundary locking, SSRF re-check on all child links, and aggregated knowledge synthesis.
+5. **Research Assistant** (`POST /research`) — Autonomous sub-query generation, parallel search, domain diversity filtering, parallel scraping, and structured report synthesis with `[n]` citations.
+6. **Fact Verification** (`POST /verify`) — Two-sided evidence gathering (supporting vs. contradicting) with evidence-bound adjudication (`TRUE`, `MOSTLY_TRUE`, `MIXED`, `MOSTLY_FALSE`, `FALSE`, `UNVERIFIABLE`).
 
 ---
 
@@ -196,7 +197,33 @@ curl -X POST "http://localhost:8000/verify" \
      }'
 ```
 
-### 6. Tools Manifest for Function Calling (`GET /tools`)
+### 6. Scrapy-Style Website Crawler (`POST /crawl`)
+Recursively crawls a website up to specified depth, enforces domain boundaries, extracts clean text, and generates cross-page knowledge summaries.
+```bash
+curl -X POST "http://localhost:8000/crawl" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "url": "https://fastapi.tiangolo.com",
+       "max_depth": 2,
+       "max_pages": 10,
+       "stay_on_domain": true,
+       "summarize": true
+     }'
+```
+
+### 7. Dark Web Search via Ahmia (`POST /search` with `engine="ahmia"`)
+Searches Tor `.onion` intelligence and security breach records via the Ahmia engine.
+```bash
+curl -X POST "http://localhost:8000/search" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "query": "ransomware leak data",
+       "engine": "ahmia",
+       "max_results": 10
+     }'
+```
+
+### 8. Tools Manifest for Function Calling (`GET /tools`)
 Retrieves the JSON tool definitions formatted for tool use in OpenAI, Ollama, and LangChain:
 ```bash
 curl "http://localhost:8000/tools"

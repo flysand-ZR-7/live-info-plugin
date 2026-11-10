@@ -23,6 +23,8 @@ class SearchRequest(BaseModel):
     max_results: int = Field(default=8, ge=1, le=50, description="Maximum number of search results to return")
     language: str = Field(default="en", max_length=10, description="Search language code (e.g., 'en', 'es', 'de')")
     time_range: Optional[SearchTimeRange] = Field(default=None, description="Optional time range filter")
+    category: Optional[str] = Field(default=None, description="Optional search category (e.g., 'general', 'news', 'darkweb')")
+    engine: Optional[str] = Field(default=None, description="Optional search engine (e.g., 'duckduckgo', 'bing', 'brave', 'ahmia')")
 
 
 class SearchResultItem(BaseModel):
@@ -74,6 +76,7 @@ class ReaderRequest(BaseModel):
     url: str = Field(..., description="Web page URL to fetch and extract main text from")
     max_chars: int = Field(default=8000, ge=500, le=50000, description="Maximum extracted text characters before truncation")
     summarize: bool = Field(default=False, description="Whether to also generate an LLM summary of the page")
+    use_tor: bool = Field(default=False, description="Whether to route through Tor proxy (auto-enabled for .onion)")
 
 
 class ReaderResponse(BaseModel):
@@ -146,6 +149,36 @@ class FactVerificationResponse(BaseModel):
     explanation: str = Field(..., description="Reasoning based strictly on retrieved evidence")
     supporting: List[EvidenceItem] = Field(default_factory=list, description="Evidence supporting the claim")
     contradicting: List[EvidenceItem] = Field(default_factory=list, description="Evidence contradicting the claim")
+
+
+# ==============================================================================
+# 6. Crawler Models (Scrapy-Style Recursive Multi-Page Crawl)
+# ==============================================================================
+
+class CrawledPageItem(BaseModel):
+    url: str
+    title: Optional[str] = None
+    text: str = Field(..., description="Clean extracted text for this page")
+    depth: int = Field(..., description="Crawl depth at which this page was discovered (1 = root)")
+    word_count: int
+    child_links_count: int
+
+
+class CrawlRequest(BaseModel):
+    url: str = Field(..., description="Root URL to start crawling from")
+    max_depth: int = Field(default=2, ge=1, le=4, description="Maximum crawl depth (1 = root only, 2 = root + direct children)")
+    max_pages: int = Field(default=10, ge=1, le=30, description="Maximum total pages to crawl")
+    stay_on_domain: bool = Field(default=True, description="Stay within the root URL domain/subdomain")
+    summarize: bool = Field(default=False, description="Generate an aggregated executive knowledge summary across all pages")
+    use_tor: bool = Field(default=False, description="Route through Tor proxy (auto-enabled for .onion)")
+
+
+class CrawlResponse(BaseModel):
+    root_url: str
+    total_pages_crawled: int
+    depth_reached: int
+    pages: List[CrawledPageItem]
+    knowledge_summary: Optional[str] = None
 
 
 # ==============================================================================

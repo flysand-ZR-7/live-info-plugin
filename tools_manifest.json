@@ -126,6 +126,43 @@
           "required": ["claim"]
         }
       }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "crawl_website",
+        "description": "Recursively crawls multiple pages of a website/documentation up to a max depth and page count with strict SSRF filtering, extracting body text and optional synthesized knowledge.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The starting root web page URL."
+            },
+            "max_depth": {
+              "type": "integer",
+              "description": "Maximum link crawl depth (default: 2, range: 1-4).",
+              "default": 2
+            },
+            "max_pages": {
+              "type": "integer",
+              "description": "Maximum number of pages to crawl (default: 10, range: 1-30).",
+              "default": 10
+            },
+            "stay_on_domain": {
+              "type": "boolean",
+              "description": "Whether to restrict crawling strictly to the root domain (default: true).",
+              "default": true
+            },
+            "summarize": {
+              "type": "boolean",
+              "description": "Whether to generate an aggregated LLM summary of all crawled pages.",
+              "default": false
+            }
+          },
+          "required": ["url"]
+        }
+      }
     }
   ]
 }

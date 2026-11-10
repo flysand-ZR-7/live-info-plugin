@@ -22,6 +22,8 @@ from fastapi.responses import JSONResponse
 load_dotenv()
 
 from app.models import (
+    CrawlRequest,
+    CrawlResponse,
     ErrorResponse,
     FactVerificationRequest,
     FactVerificationResponse,
@@ -34,6 +36,7 @@ from app.models import (
     SearchRequest,
     SearchResponse,
 )
+from app.crawler import crawl_website
 from app.news import get_news
 from app.reader import read_url
 from app.research import conduct_research
@@ -183,6 +186,8 @@ async def endpoint_search(req: SearchRequest):
         max_results=req.max_results,
         language=req.language,
         time_range=req.time_range,
+        categories=req.category,
+        engine=req.engine,
     )
     return SearchResponse(
         query=req.query,
@@ -278,3 +283,29 @@ async def endpoint_verify(req: FactVerificationRequest):
     """
     logger.info("Received /verify request: claim='%s'", req.claim)
     return await verify_claim(claim=req.claim)
+
+
+# ==============================================================================
+# 6. Scrapy-Style Website Crawler Endpoint
+# ==============================================================================
+
+@app.post(
+    "/crawl",
+    response_model=CrawlResponse,
+    tags=["Capabilities"],
+    summary="Recursively crawl websites with depth control, SSRF filtering, and knowledge synthesis",
+)
+async def endpoint_crawl(req: CrawlRequest):
+    """
+    Crawls a website breadth-first up to max_depth and max_pages, extracts clean content,
+    and optionally synthesizes an executive knowledge summary across all pages.
+    """
+    logger.info("Received /crawl request: url='%s' max_depth=%d max_pages=%d", req.url, req.max_depth, req.max_pages)
+    return await crawl_website(
+        root_url=req.url,
+        max_depth=req.max_depth,
+        max_pages=req.max_pages,
+        stay_on_domain=req.stay_on_domain,
+        summarize=req.summarize,
+        use_tor=req.use_tor,
+    )
