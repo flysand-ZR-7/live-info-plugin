@@ -1,5 +1,12 @@
 # 🌐 Internet & Live Information Plugin
 
+[![CI](https://github.com/flysand-ZR-7/live-info-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/flysand-ZR-7/live-info-plugin/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
+[![Tests](https://img.shields.io/badge/Tests-26%20Passed-brightgreen.svg)](tests/)
+
 A production-grade, secure FastAPI service that equips open-source and commercial LLMs with live internet access through 5 core capabilities:
 1. **Internet Search** (`POST /search`) — Multi-engine web search with URL deduplication, retries, and Brave fallback.
 2. **News & World Events** (`POST /news`) — Real-time news aggregation with an AI-generated 5-bullet executive briefing and numbered citations.
