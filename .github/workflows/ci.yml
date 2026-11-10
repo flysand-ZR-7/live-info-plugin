@@ -18,8 +18,6 @@ jobs:
 
     - name: Install pnpm
       uses: pnpm/action-setup@v4
-      with:
-        version: 12.14.0
 
     - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
@@ -29,8 +27,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pnpm install --frozen-lockfile || pnpm install
-        pnpm approve-builds --all
+        pnpm install --no-frozen-lockfile
 
     - name: Type check and build
       run: |
