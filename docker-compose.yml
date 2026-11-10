@@ -23,3 +23,20 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  live-info:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: live-info-plugin
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - SEARXNG_URL=http://searxng:8080
+      - LLM_PROVIDER=anthropic
+      - LLM_API_KEY=${LLM_API_KEY:-}
+    depends_on:
+      - searxng
