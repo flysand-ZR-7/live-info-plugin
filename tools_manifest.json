@@ -1,0 +1,131 @@
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "search_internet",
+        "description": "Searches the live public internet using SearXNG. Returns relevant web page titles, URLs, and text snippets.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Search terms or keywords to query."
+            },
+            "max_results": {
+              "type": "integer",
+              "description": "Maximum number of search results to return (default: 8, max: 50).",
+              "default": 8
+            },
+            "language": {
+              "type": "string",
+              "description": "Two-letter language code (default: 'en').",
+              "default": "en"
+            },
+            "time_range": {
+              "type": "string",
+              "enum": ["day", "week", "month", "year"],
+              "description": "Filter results by time range (e.g. 'day' for latest 24 hours)."
+            }
+          },
+          "required": ["query"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "get_news_and_events",
+        "description": "Retrieves recent news and world events for a topic, and provides an executive briefing with numbered citations [n].",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "topic": {
+              "type": "string",
+              "description": "The news subject, geopolitical event, or headline topic."
+            },
+            "time_range": {
+              "type": "string",
+              "enum": ["day", "week", "month", "year"],
+              "description": "Time window for news recency (default: 'day').",
+              "default": "day"
+            },
+            "max_results": {
+              "type": "integer",
+              "description": "Maximum number of news articles to retrieve (default: 8).",
+              "default": 8
+            }
+          },
+          "required": ["topic"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "read_website",
+        "description": "Fetches a web page URL and extracts the clean body text, stripping ads, scripts, and navigation. Protected against SSRF and capped at 5MB.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The full HTTP/HTTPS URL of the web page to read."
+            },
+            "max_chars": {
+              "type": "integer",
+              "description": "Maximum extracted character count before truncation (default: 8000).",
+              "default": 8000
+            },
+            "summarize": {
+              "type": "boolean",
+              "description": "Set to true to also produce a concise AI summary of the page contents.",
+              "default": false
+            }
+          },
+          "required": ["url"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "deep_research",
+        "description": "Conducts multi-step deep research on a question: generates sub-queries, executes parallel searches, extracts text across diverse domains, and writes a structured report with [n] citations.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "description": "The complex research question or topic to investigate in depth."
+            },
+            "depth": {
+              "type": "string",
+              "enum": ["quick", "standard", "deep"],
+              "description": "Research depth: 'quick' (3 sub-queries), 'standard' (5 sub-queries), or 'deep' (8 sub-queries).",
+              "default": "standard"
+            }
+          },
+          "required": ["question"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "verify_fact",
+        "description": "Rigorously verifies a factual claim against live external evidence. Searches confirming and refuting perspectives and returns a verdict (TRUE, MOSTLY_TRUE, MIXED, MOSTLY_FALSE, FALSE, UNVERIFIABLE) with confidence and quote summaries.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "claim": {
+              "type": "string",
+              "description": "The specific statement or factual assertion to verify."
+            }
+          },
+          "required": ["claim"]
+        }
+      }
+    }
+  ]
+}

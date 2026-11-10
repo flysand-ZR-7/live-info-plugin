@@ -1,0 +1,62 @@
+use_default_settings: true
+
+general:
+  debug: false
+  instance_name: "Live Information SearXNG Engine"
+
+server:
+  port: 8080
+  bind_address: "0.0.0.0"
+  secret_key: "change_me_to_a_random_secret_in_production_32bytes"
+  limiter: false
+  image_proxy: false
+  method: "GET"
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  default_lang: "en"
+  ban_time_on_fail: 5
+  max_ban_time_on_fail: 120
+  formats:
+    - html
+    - json
+
+engines:
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+    timeout: 3.0
+    disabled: false
+
+  - name: bing
+    engine: bing
+    shortcut: bi
+    timeout: 3.0
+    disabled: false
+
+  - name: brave
+    engine: brave
+    shortcut: br
+    timeout: 3.0
+    disabled: false
+
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+    timeout: 3.0
+    disabled: false
+
+  - name: bing news
+    engine: bing_news
+    shortcut: bin
+    categories: [news]
+    timeout: 3.0
+    disabled: false
+
+  - name: duckduckgo news
+    engine: duckduckgo
+    shortcut: ddgn
+    categories: [news]
+    timeout: 3.0
+    disabled: false
